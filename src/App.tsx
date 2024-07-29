@@ -85,10 +85,7 @@ export default function App() {
 
           <Link
             className="text-fuel-green hover:underline"
-            to={
-              CURRENT_ENVIRONMENT === "local" ? "/faucet" : TESTNET_FAUCET_LINK
-            }
-            target={CURRENT_ENVIRONMENT === "local" ? "_self" : "_blank"}
+            to={`/faucet`}
           >
             Faucet
           </Link>
