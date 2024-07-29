@@ -1,7 +1,4 @@
-import {
-  useConnectUI,
-  useDisconnect,
-} from "@fuels/react";
+import { useConnectUI, useDisconnect } from "@fuels/react";
 import { bn } from "fuels";
 import { Button } from "./components/Button";
 import toast, { Toaster } from "react-hot-toast";
@@ -10,7 +7,12 @@ import { useBrowserWallet } from "./hooks/useBrowserWallet";
 import { WalletDisplay } from "./components/WalletDisplay";
 import { CURRENT_ENVIRONMENT, NODE_URL, TESTNET_FAUCET_LINK } from "./lib";
 import { useFaucet } from "./hooks/useFaucet";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  Link,
+  useNavigate,
+} from "react-router-dom";
 import Home from "./pages/Counter";
 import PredicateExample from "./pages/Predicate";
 import ScriptExample from "./pages/Script";
@@ -30,6 +32,7 @@ export default function App() {
 
   const { connect } = useConnectUI();
   const { disconnect } = useDisconnect();
+  const navigate = useNavigate();
 
   const topUpWallet = async () => {
     if (!wallet) {
@@ -73,21 +76,13 @@ export default function App() {
     );
   };
 
-
   return (
-    <Router>
+    <>
       <Toaster />
       <div className="flex flex-col bg-black text-white">
         <nav className="flex justify-between items-center p-4 bg-black text-white gap-6">
           <Link className="text-fuel-green hover:underline" to="/">
             Home
-          </Link>
-
-          <Link
-            className="text-fuel-green hover:underline"
-            to={`/faucet`}
-          >
-            Faucet
           </Link>
 
           {isBrowserWalletConnected && (
@@ -107,9 +102,7 @@ export default function App() {
             <WalletDisplay />
           </div>
 
-          {showTopUpButton && (
-            <Button onClick={() => topUpWallet()}>Top-up Wallet</Button>
-          )}
+          <Button onClick={() => navigate("/faucet")}>Faucet</Button>
         </nav>
         <div className="min-h-screen items-center p-24 flex flex-col gap-6">
           <Routes>
@@ -120,6 +113,6 @@ export default function App() {
           </Routes>{" "}
         </div>
       </div>
-    </Router>
+    </>
   );
 }

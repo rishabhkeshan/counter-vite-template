@@ -15,6 +15,9 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NODE_URL } from "./lib";
 import { ActiveWalletProvider } from "./hooks/useActiveWallet";
+import {
+  BrowserRouter as Router,
+} from "react-router-dom";
 
 const queryClient = new QueryClient();
 
@@ -22,28 +25,30 @@ const Root = () => {
   const providerToUse = useMemo(() => Provider.create(NODE_URL), [NODE_URL]);
   return (
     <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <FuelProvider
-          fuelConfig={{
-            connectors: [
-              new FuelWalletConnector(),
-              new BurnerWalletConnector({
-                fuelProvider: providerToUse,
-              }),
-              new WalletConnectConnector({
-                fuelProvider: providerToUse,
-              }),
-              new BakoSafeConnector(),
-              new FueletWalletConnector(),
-              new FuelWalletDevelopmentConnector(),
-            ],
-          }}
-        >
-          <ActiveWalletProvider>
-            <App />
-          </ActiveWalletProvider>
-        </FuelProvider>
-      </QueryClientProvider>
+      <Router>
+        <QueryClientProvider client={queryClient}>
+          <FuelProvider
+            fuelConfig={{
+              connectors: [
+                new FuelWalletConnector(),
+                new BurnerWalletConnector({
+                  fuelProvider: providerToUse,
+                }),
+                new WalletConnectConnector({
+                  fuelProvider: providerToUse,
+                }),
+                new BakoSafeConnector(),
+                new FueletWalletConnector(),
+                new FuelWalletDevelopmentConnector(),
+              ],
+            }}
+          >
+            <ActiveWalletProvider>
+              <App />
+            </ActiveWalletProvider>
+          </FuelProvider>
+        </QueryClientProvider>
+      </Router>
     </React.StrictMode>
   );
 };
