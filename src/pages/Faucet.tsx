@@ -5,6 +5,9 @@ import { useFaucet } from "../hooks/useFaucet";
 import { bn } from "fuels";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { CURRENT_ENVIRONMENT, TESTNET_FAUCET_LINK } from "../lib";
+
+const isLocal = CURRENT_ENVIRONMENT === "local";
 
 export default function Faucet() {
   const { faucetWallet } = useFaucet();
@@ -18,6 +21,12 @@ export default function Faucet() {
       setReceiverAddress(wallet.address.toB256());
     }
   }, [wallet]);
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      await refreshWalletBalance?.();
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
 
   const sendFunds = async () => {
     if (!faucetWallet) {
@@ -32,49 +41,63 @@ export default function Faucet() {
       return toast.error("Amount cannot be empty");
     }
 
-    const tx = await faucetWallet.transfer(
-      receiverAddress,
-      bn.parseUnits(amountToSend.toString())
-    );
-    await tx.waitForResult();
+    try {
+      const tx = await faucetWallet.transfer(
+        receiverAddress,
+        bn.parseUnits(amountToSend.toString())
+      );
+      await tx.waitForResult();
 
-    toast.success("Funds sent!");
-
-    await refreshWalletBalance?.();
+      toast.success("Funds sent!");
+      await refreshWalletBalance?.();
+    } catch (error) {
+      toast.error("Transaction failed");
+    }
   };
 
   return (
     <>
-      <h3 className="text-2xl font-semibold">Local Faucet</h3>
+      {isLocal ? (
+        <>
+          <h3 className="text-2xl font-semibold">Local Faucet</h3>
 
-      <div className="flex gap-4 items-center">
-        <label htmlFor="receiver-address-input" className="text-gray-400">
-          Receiving address:
-        </label>
-        <Input
-          className="w-full"
-          value={receiverAddress}
-          onChange={(e) => setReceiverAddress(e.target.value)}
-          placeholder="0x..."
-          id="receiver-address-input"
+          <div className="flex gap-4 items-center">
+            <label htmlFor="receiver-address-input" className="text-gray-400">
+              Receiving address:
+            </label>
+            <Input
+              className="w-full"
+              value={receiverAddress}
+              onChange={(e) => setReceiverAddress(e.target.value)}
+              placeholder="0x..."
+              id="receiver-address-input"
+            />
+          </div>
+
+          <div className="flex gap-4 items-center">
+            <label htmlFor="amount-input" className="text-gray-400">
+              Amount (ETH):
+            </label>
+            <Input
+              className="w-full"
+              value={amountToSend}
+              onChange={(e) => setAmountToSend(e.target.value)}
+              placeholder="5"
+              type="number"
+              id="amount-input"
+            />
+          </div>
+
+          <Button onClick={sendFunds}>Send Funds</Button>
+        </>
+      ) : (
+        <iframe
+          src={`${TESTNET_FAUCET_LINK}?address=${receiverAddress}`}
+          width="100%"
+          height="700px"
+          allowFullScreen
         />
-      </div>
-
-      <div className="flex gap-4 items-center">
-        <label htmlFor="amount-input" className="text-gray-400">
-          Amount (ETH):
-        </label>
-        <Input
-          className="w-full"
-          value={amountToSend}
-          onChange={(e) => setAmountToSend(e.target.value)}
-          placeholder="5"
-          type="number"
-          id="amount-input"
-        />
-      </div>
-
-      <Button onClick={sendFunds}>Send Funds</Button>
+      )}
     </>
   );
 }

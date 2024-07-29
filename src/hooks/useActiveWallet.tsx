@@ -1,4 +1,4 @@
-import { useEffect, useState, createContext, useContext, useMemo } from "react";
+import { useEffect, useState, createContext, useContext } from "react";
 import { useBrowserWallet } from "./useBrowserWallet";
 import { useBurnerWallet } from "./useBurnerWallet";
 import { AppWallet } from "../lib";

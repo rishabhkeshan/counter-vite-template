@@ -14,6 +14,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Home from "./pages/Counter";
 import PredicateExample from "./pages/Predicate";
 import ScriptExample from "./pages/Script";
+import Faucet from "./pages/Faucet";
 
 // const CONTRACT_ID =
 //   "0x74fb4df9671c2e0db969570fa4fec292d338a945e65e633419d5c01fc609b72e";
@@ -118,6 +119,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/predicate" element={<PredicateExample />} />
             <Route path="/script" element={<ScriptExample />} />
+            <Route path="/faucet" element={<Faucet />} />
           </Routes>{" "}
         </div>
       </div>
