@@ -72,6 +72,7 @@ export default function ScriptExample() {
 
       <Link
         to="https://docs.fuel.network/docs/intro/glossary/#script"
+        target="_blank"
         className="text-fuel-green hover:underline mt-4"
       >
         Learn more about Scripts
