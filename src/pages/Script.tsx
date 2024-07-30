@@ -11,9 +11,10 @@ import { BN, BigNumberish, Script, bn } from "fuels";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import useAsync from "react-use/lib/useAsync";
-
+import LaunchIcon from "@mui/icons-material/Launch";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 export default function ScriptExample() {
-  const { wallet } = useActiveWallet();
+  const { wallet, walletBalance } = useActiveWallet();
 
   const [script, setScript] = useState<Script<[input: BigNumberish], BN>>();
   const [input, setInput] = useState<string>();
@@ -31,11 +32,27 @@ export default function ScriptExample() {
       if (!script) {
         return toast.error("Script not loaded");
       }
-
+    if (walletBalance?.eq(0)) {
+      return toast.error(
+        "Your wallet does not have enough funds. Please click the 'Faucet' button in the top right corner, or use the local faucet."
+      );
+    }
       const { waitForResult } = await script.functions.main(bn(input)).call();
-      const { value } = await waitForResult();
+      const { value, transactionId } = await waitForResult();
 
       setResult(value.toString());
+      toast(() => (
+        <span>
+          <CheckCircleIcon color="success" />
+          Transaction Success!{" "}
+          <a
+            target="_blank"
+            href={`https://app.fuel.network/tx/${transactionId}`}
+          >
+            <LaunchIcon />
+          </a>
+        </span>
+      ));
     } catch (error) {
       console.error(error);
       toast.error("Error running script.");

@@ -18,6 +18,8 @@ import { NODE_URL } from "./lib";
 import {
   BrowserRouter as Router,
 } from "react-router-dom";
+import { StyledEngineProvider } from "@mui/material";
+
 
 const queryClient = new QueryClient();
 
@@ -26,28 +28,30 @@ const Root = () => {
   return (
     <React.StrictMode>
       <Router>
-        <QueryClientProvider client={queryClient}>
-          <FuelProvider
-            fuelConfig={{
-              connectors: [
-                new FuelWalletConnector(),
-                new BurnerWalletConnector({
-                  fuelProvider: providerToUse,
-                }),
-                new WalletConnectConnector({
-                  fuelProvider: providerToUse,
-                }),
-                new BakoSafeConnector(),
-                new FueletWalletConnector(),
-                new FuelWalletDevelopmentConnector(),
-              ],
-            }}
-          >
-            {/* <ActiveWalletProvider> */}
+        <StyledEngineProvider injectFirst>
+          <QueryClientProvider client={queryClient}>
+            <FuelProvider
+              fuelConfig={{
+                connectors: [
+                  new FuelWalletConnector(),
+                  new BurnerWalletConnector({
+                    fuelProvider: providerToUse,
+                  }),
+                  new WalletConnectConnector({
+                    fuelProvider: providerToUse,
+                  }),
+                  new BakoSafeConnector(),
+                  new FueletWalletConnector(),
+                  new FuelWalletDevelopmentConnector(),
+                ],
+              }}
+            >
+              {/* <ActiveWalletProvider> */}
               <App />
-            {/* </ActiveWalletProvider> */}
-          </FuelProvider>
-        </QueryClientProvider>
+              {/* </ActiveWalletProvider> */}
+            </FuelProvider>
+          </QueryClientProvider>
+        </StyledEngineProvider>
       </Router>
     </React.StrictMode>
   );

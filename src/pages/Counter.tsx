@@ -10,11 +10,12 @@ import toast from "react-hot-toast";
 import { useActiveWallet } from "../hooks/useActiveWallet";
 import useAsync from "react-use/lib/useAsync";
 import { CURRENT_ENVIRONMENT } from "../lib";
-
+import LaunchIcon from "@mui/icons-material/Launch";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 const contractId =
   CURRENT_ENVIRONMENT === "local"
     ? contractIds.testContract
-    : (process.env.NEXT_PUBLIC_TESTNET_CONTRACT_ID as string);// Testnet Contract ID
+    : (process.env.NEXT_PUBLIC_TESTNET_CONTRACT_ID as string); // Testnet Contract ID
 
 export default function Home() {
   const { wallet, walletBalance, refetchBalance } = useActiveWallet();
@@ -42,7 +43,7 @@ export default function Home() {
 
     if (walletBalance?.eq(0)) {
       return toast.error(
-        "Your wallet does not have enough funds. Please click the 'Top-up Wallet' button in the top right corner, or use the local faucet."
+        "Your wallet does not have enough funds. Please click the 'Faucet' button in the top right corner, or use the local faucet."
       );
     }
 
@@ -50,8 +51,20 @@ export default function Home() {
       .increment_counter(bn(1))
       .call();
 
-    const { value } = await waitForResult();
-
+    const { value, transactionId } = await waitForResult();
+    //show success toast with transaction link, with transaction link on blockchain explorer
+    toast(() => (
+      <span>
+        <CheckCircleIcon color="success" />
+        Transaction Success!{" "}
+        <a
+          target="_blank"
+          href={`https://app.fuel.network/tx/${transactionId}`}
+        >
+          <LaunchIcon />
+        </a>
+      </span>
+    ));
     setCounter(value.toNumber());
 
     await refetchBalance?.();

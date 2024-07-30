@@ -10,7 +10,8 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import useAsync from "react-use/lib/useAsync";
 import { Link } from "react-router-dom";
-
+import LaunchIcon from "@mui/icons-material/Launch";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 export default function PredicateExample() {
   let baseAssetId: string;
 
@@ -46,14 +47,29 @@ export default function PredicateExample() {
     if (!wallet) {
       return toast.error("Wallet not loaded");
     }
-
-    await wallet.transfer(predicate.address, amount, baseAssetId, {
+    if (walletBalance?.eq(0)) {
+      return toast.error(
+        "Your wallet does not have enough funds. Please click the 'Faucet' button in the top right corner, or use the local faucet."
+      );
+    }
+    const tx = await wallet.transfer(predicate.address, amount, baseAssetId, {
       gasLimit: 10_000,
     });
-
+    console.log(tx);
     await refreshBalances();
 
-    return toast.success("Funds transferred to predicate.");
+    return toast(() => (
+      <span>
+        <CheckCircleIcon color="success" />
+        Funds transferred to predicate!
+        <a
+          target="_blank"
+          href={`https://app.fuel.network/tx/${tx?.id}`}
+        >
+          <LaunchIcon />
+        </a>
+      </span>
+    ));
   };
 
   const unlockPredicateAndTransferFundsBack = async (amount: BN) => {
@@ -61,7 +77,11 @@ export default function PredicateExample() {
       if (!wallet) {
         return toast.error("Wallet not loaded");
       }
-
+    if (walletBalance?.eq(0)) {
+      return toast.error(
+        "Your wallet does not have enough funds. Please click the 'Faucet' button in the top right corner, or use the local faucet."
+      );
+    }
       const reInitializePredicate = TestPredicateAbi__factory.createInstance(
         wallet.provider,
         [bn(pin)]
@@ -83,7 +103,15 @@ export default function PredicateExample() {
       }
 
       if (isStatusSuccess) {
-        toast.success("Predicate unlocked");
+        toast(() => (
+          <span>
+            <CheckCircleIcon color="success" />
+            Funds transferred from predicate!
+            <a target="_blank" href={`https://app.fuel.network/tx/${tx?.id}`}>
+              <LaunchIcon />
+            </a>
+          </span>
+        ));
       }
 
       await refreshBalances();

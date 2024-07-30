@@ -6,7 +6,8 @@ import { bn } from "fuels";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { CURRENT_ENVIRONMENT, TESTNET_FAUCET_LINK } from "../lib";
-
+import LaunchIcon from "@mui/icons-material/Launch";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 const isLocal = CURRENT_ENVIRONMENT === "local";
 
 export default function Faucet() {
@@ -46,10 +47,19 @@ export default function Faucet() {
         receiverAddress,
         bn.parseUnits(amountToSend.toString())
       );
-      await tx.waitForResult();
-
-      toast.success("Funds sent!");
-      await refetchBalance?.();
+    const {id} = await tx.waitForResult();
+    toast((t) => (
+      <span>
+        <CheckCircleIcon color="success" />
+        Transaction Success!{" "}
+        <a
+          target="_blank"
+          href={`https://app.fuel.network/tx/${id}`}
+        >
+          <LaunchIcon />
+        </a>
+      </span>
+    ));      await refetchBalance?.();
     } catch (error) {
       toast.error("Transaction failed");
     }

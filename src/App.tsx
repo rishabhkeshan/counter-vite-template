@@ -19,14 +19,14 @@ import ScriptExample from "./pages/Script";
 import Faucet from "./pages/Faucet";
 import { useBreakpoints } from "./hooks/useBreakpoints";
 import "./App.css";
+import { NavMenu } from "./components/NavMenu";
 
 
 // const CONTRACT_ID =
 //   "0x74fb4df9671c2e0db969570fa4fec292d338a945e65e633419d5c01fc609b72e";
 
 export default function App() {
-  const { faucetWallet } = useFaucet();
-  const { wallet, walletBalance, refreshWalletBalance } = useActiveWallet();
+  const { wallet, walletBalance, refetchBalance } = useActiveWallet();
   const {
     wallet: browserWallet,
     isConnected: isBrowserWalletConnected,
@@ -36,38 +36,8 @@ export default function App() {
   const { connect } = useConnectUI();
   const { disconnect } = useDisconnect();
   const navigate = useNavigate();
-  const { isTablet, isMobile } = useBreakpoints();
+  const { isMobile } = useBreakpoints();
 
-  const topUpWallet = async () => {
-    if (!wallet) {
-      return console.error("Unable to topup wallet because wallet is not set.");
-    }
-
-    if (CURRENT_ENVIRONMENT === "local") {
-      if (!faucetWallet) {
-        return toast.error("Faucet wallet not found.");
-      }
-
-      const tx = await faucetWallet?.transfer(
-        wallet.address,
-        bn.parseUnits("5")
-      );
-      await tx?.waitForResult();
-
-      toast.success("Wallet topped up!");
-
-      return await refreshWalletBalance?.();
-    }
-
-    if (CURRENT_ENVIRONMENT === "testnet") {
-      return window.open(
-        `${TESTNET_FAUCET_LINK}?address=${wallet.address.toAddress()}`,
-        "_blank"
-      );
-    }
-  };
-
-  const showTopUpButton = walletBalance?.lt(bn.parseUnits("5"));
 
   const showAddNetworkButton =
     browserWallet &&
@@ -82,12 +52,14 @@ export default function App() {
 
   return (
     <>
-      <Toaster />
+      <Toaster position="bottom-center" />
       <div className="flex flex-col bg-black text-white">
         <nav className="flex justify-between items-center p-4 bg-black text-white gap-6">
-          <Link className="text-fuel-green hover:underline" to="/">
-            Home
-          </Link>
+          {!isMobile && (
+            <Link className="text-fuel-green hover:underline" to="/">
+              Home
+            </Link>
+          )}
           {showAddNetworkButton && (
             <Button onClick={tryToAddNetwork} className="bg-red-500">
               Wrong Network
@@ -109,6 +81,7 @@ export default function App() {
           {!isBrowserWalletConnected && !isMobile && (
             <Button onClick={connect}>Connect Wallet</Button>
           )}
+          {isMobile && <NavMenu address={wallet?.address.toString()} />}
         </nav>
         <div className="min-h-screen items-center justify-center flex flex-col gap-6">
           <Routes>
