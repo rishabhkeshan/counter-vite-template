@@ -64,12 +64,12 @@ export default function Home() {
         <h1 className="text-2xl font-semibold ali">Welcome to Fuel</h1>
       </div>
 
-      <span className="text-gray-400">
+      <span className="text-gray-400 text-center">
         Get started by editing <i>sway-programs/contract/main.sw</i> or{" "}
         <i>src/pages/index.tsx</i>.
       </span>
 
-      <span className="text-gray-400">
+      <span className="text-gray-400 text-center">
         This template uses the new{" "}
         <Link to="https://docs.fuel.network/docs/fuels-ts/fuels/#fuels-cli">
           Fuels CLI
@@ -89,17 +89,17 @@ export default function Home() {
         </Button>
       </>
 
-      <Link to="/predicate" className="text-fuel-green hover:underline mt-4">
+      <Link to="/predicate" className="text-fuel-green hover:underline">
         Predicate Example
       </Link>
 
-      <Link to="/script" className="text-fuel-green hover:underline mt-4">
+      <Link to="/script" className="text-fuel-green hover:underline">
         Script Example
       </Link>
       <Link
         to="https://docs.fuel.network"
         target="_blank"
-        className="text-fuel-green hover:underline mt-12"
+        className="text-fuel-green hover:underline mt-8"
       >
         Fuel Docs
       </Link>

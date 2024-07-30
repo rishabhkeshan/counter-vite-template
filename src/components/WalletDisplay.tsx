@@ -1,6 +1,7 @@
 import toast from "react-hot-toast";
 import { useActiveWallet } from "../hooks/useActiveWallet";
 import CopyIcon from "../assets/copy.svg";
+import { Link } from "react-router-dom";
 const getTruncatedAddress = (address: string) => {
   return address.slice(0, 6) + "..." + address.slice(-4);
 };
@@ -16,9 +17,13 @@ export const WalletDisplay = () => {
   return (
     wallet && (
       <div className="flex gap-4 items-center">
-        <span className="text-gray-400">
+        <Link
+          to={`https://app.fuel.network/account/${wallet.address.toB256()}`}
+          target="_blank"
+          className="text-gray-400 hover:underline hover:text-green-400"
+        >
           {getTruncatedAddress(wallet.address.toB256() as string)}
-        </span>
+        </Link>
         <img
           src={CopyIcon}
           alt="copy"

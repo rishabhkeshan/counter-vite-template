@@ -44,7 +44,7 @@ export default function ScriptExample() {
 
   return (
     <>
-      <div className="flex gap-4">
+      <div className="flex gap-4 items-center">
         <FuelLogo />
         <h3 className="text-2xl font-semibold">Script</h3>
       </div>
@@ -73,7 +73,7 @@ export default function ScriptExample() {
       <Link
         to="https://docs.fuel.network/docs/intro/glossary/#script"
         target="_blank"
-        className="text-fuel-green hover:underline mt-4"
+        className="text-fuel-green hover:underline"
       >
         Learn more about Scripts
       </Link>

@@ -17,6 +17,9 @@ import Home from "./pages/Counter";
 import PredicateExample from "./pages/Predicate";
 import ScriptExample from "./pages/Script";
 import Faucet from "./pages/Faucet";
+import { useBreakpoints } from "./hooks/useBreakpoints";
+import "./App.css";
+
 
 // const CONTRACT_ID =
 //   "0x74fb4df9671c2e0db969570fa4fec292d338a945e65e633419d5c01fc609b72e";
@@ -33,6 +36,7 @@ export default function App() {
   const { connect } = useConnectUI();
   const { disconnect } = useDisconnect();
   const navigate = useNavigate();
+  const { isTablet, isMobile } = useBreakpoints();
 
   const topUpWallet = async () => {
     if (!wallet) {
@@ -84,27 +88,29 @@ export default function App() {
           <Link className="text-fuel-green hover:underline" to="/">
             Home
           </Link>
-
-          {isBrowserWalletConnected && (
-            <Button onClick={disconnect}>Disconnect Wallet</Button>
-          )}
-          {!isBrowserWalletConnected && (
-            <Button onClick={connect}>Connect Wallet</Button>
-          )}
-
           {showAddNetworkButton && (
             <Button onClick={tryToAddNetwork} className="bg-red-500">
               Wrong Network
             </Button>
           )}
-
           <div className="ml-auto">
             <WalletDisplay />
           </div>
-
-          <Button onClick={() => navigate("/faucet")}>Faucet</Button>
+          {!isMobile && (
+            <Button className="bg-gray-500" onClick={() => navigate("/faucet")}>
+              Faucet
+            </Button>
+          )}
+          {isBrowserWalletConnected && !isMobile && (
+            <Button className="bg-red-600" onClick={disconnect}>
+              Disconnect
+            </Button>
+          )}
+          {!isBrowserWalletConnected && !isMobile && (
+            <Button onClick={connect}>Connect Wallet</Button>
+          )}
         </nav>
-        <div className="min-h-screen items-center p-24 flex flex-col gap-6">
+        <div className="min-h-screen items-center justify-center flex flex-col gap-6">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/predicate" element={<PredicateExample />} />

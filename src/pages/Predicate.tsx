@@ -97,12 +97,12 @@ export default function PredicateExample() {
 
   return (
     <>
-      <div className="flex gap-4">
+      <div className="flex justify-center items-center gap-4">
         <FuelLogo />
         <h3 className="text-2xl font-semibold">Predicate</h3>
       </div>
 
-      <div className="mt-12 items-baseline flex gap-2">
+      <div className="mt-8 items-baseline flex gap-2">
         <h5 className="font-semibold text-xl">Wallet Balance:</h5>
         <span className="text-gray-400">
           {walletBalance?.format({
@@ -138,6 +138,7 @@ export default function PredicateExample() {
       />
 
       <Button
+      className="w-11/12 sm:w-fit"
         onClick={async () =>
           await unlockPredicateAndTransferFundsBack(bn.parseUnits("0.09"))
         }
@@ -145,7 +146,7 @@ export default function PredicateExample() {
         Unlock Predicate and Transfer 0.09 ETH back to Wallet
       </Button>
 
-      <span className="mt-8 w-[400px] text-gray-400">
+      <span className="mt-4 w-[360px] text-center text-gray-400">
         Do note that when you 'unlock' a predicate, the predicate also pays for
         the gas of the transaction. <br />
         This is why you will notice that the balance of the predicate gets
@@ -160,7 +161,7 @@ export default function PredicateExample() {
         Learn more about Predicates
       </Link>
 
-      <Link to="/" className="text-fuel-green hover:underline mt-12">
+      <Link to="/" className="text-fuel-green hover:underline mt-8">
         Back to Home
       </Link>
     </>
