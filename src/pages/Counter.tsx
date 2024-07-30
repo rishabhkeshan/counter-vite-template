@@ -17,7 +17,7 @@ const contractId =
     : (process.env.NEXT_PUBLIC_TESTNET_CONTRACT_ID as string);// Testnet Contract ID
 
 export default function Home() {
-  const { wallet, walletBalance, refreshWalletBalance } = useActiveWallet();
+  const { wallet, walletBalance, refetchBalance } = useActiveWallet();
   const [contract, setContract] = useState<TestContractAbi>();
   const [counter, setCounter] = useState<number>();
 
@@ -54,7 +54,7 @@ export default function Home() {
 
     setCounter(value.toNumber());
 
-    await refreshWalletBalance?.();
+    await refetchBalance?.();
   };
 
   return (

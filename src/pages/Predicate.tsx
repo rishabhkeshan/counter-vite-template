@@ -14,7 +14,7 @@ import { Link } from "react-router-dom";
 export default function PredicateExample() {
   let baseAssetId: string;
 
-  const { wallet, walletBalance, refreshWalletBalance } = useActiveWallet();
+  const { wallet, walletBalance, refetchBalance } = useActiveWallet();
 
   const [predicate, setPredicate] = useState<Predicate<InputValue[]>>();
 
@@ -34,7 +34,7 @@ export default function PredicateExample() {
   }, [wallet]);
 
   const refreshBalances = async () => {
-    await refreshWalletBalance?.();
+    await refetchBalance?.();
     setPredicateBalance(await predicate?.getBalance());
   };
 

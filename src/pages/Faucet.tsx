@@ -11,7 +11,7 @@ const isLocal = CURRENT_ENVIRONMENT === "local";
 
 export default function Faucet() {
   const { faucetWallet } = useFaucet();
-  const { wallet, refreshWalletBalance } = useActiveWallet();
+  const { wallet, refetchBalance } = useActiveWallet();
 
   const [receiverAddress, setReceiverAddress] = useState<string>("");
   const [amountToSend, setAmountToSend] = useState<string>("5");
@@ -23,7 +23,7 @@ export default function Faucet() {
   }, [wallet]);
   useEffect(() => {
     const interval = setInterval(async () => {
-      await refreshWalletBalance?.();
+      await refetchBalance?.();
     }, 500);
     return () => clearInterval(interval);
   }, []);
@@ -49,7 +49,7 @@ export default function Faucet() {
       await tx.waitForResult();
 
       toast.success("Funds sent!");
-      await refreshWalletBalance?.();
+      await refetchBalance?.();
     } catch (error) {
       toast.error("Transaction failed");
     }

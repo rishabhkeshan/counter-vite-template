@@ -14,7 +14,7 @@ import {
 } from "@fuels/connectors";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NODE_URL } from "./lib";
-import { ActiveWalletProvider } from "./hooks/useActiveWallet";
+// import { ActiveWalletProvider } from "./hooks/useActiveWallet";
 import {
   BrowserRouter as Router,
 } from "react-router-dom";
@@ -43,9 +43,9 @@ const Root = () => {
               ],
             }}
           >
-            <ActiveWalletProvider>
+            {/* <ActiveWalletProvider> */}
               <App />
-            </ActiveWalletProvider>
+            {/* </ActiveWalletProvider> */}
           </FuelProvider>
         </QueryClientProvider>
       </Router>
