@@ -47,19 +47,17 @@ export default function Faucet() {
         receiverAddress,
         bn.parseUnits(amountToSend.toString())
       );
-    const {id} = await tx.waitForResult();
-    toast((t) => (
-      <span>
-        <CheckCircleIcon color="success" />
-        Transaction Success!{" "}
-        <a
-          target="_blank"
-          href={`https://app.fuel.network/tx/${id}`}
-        >
-          <LaunchIcon />
-        </a>
-      </span>
-    ));      await refetchBalance?.();
+      const { id } = await tx.waitForResult();
+      toast(() => (
+        <span>
+          <CheckCircleIcon color="success" />
+          Transaction Success!{" "}
+          <a target="_blank" href={`https://app.fuel.network/tx/${id}`}>
+            <LaunchIcon />
+          </a>
+        </span>
+      ));
+      await refetchBalance?.();
     } catch (error) {
       toast.error("Transaction failed");
     }
