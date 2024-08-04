@@ -223,7 +223,7 @@ export default function PredicateExample() {
           await unlockPredicateAndTransferFundsBack(bn.parseUnits("0.09"))
         }
       >
-        {isLoadingTransfer
+        {isLoadingUnlock
           ? "Unlocking Predicate and Transferring to Wallet..."
           : "Unlock Predicate and Transfer 0.09 ETH back to Wallet"}
       </Button>
