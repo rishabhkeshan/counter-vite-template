@@ -46,6 +46,15 @@ export const NavMenu = ({ address }: { address?: string }) => {
             Home
           </Link>
         </MenuItem>
+        <MenuItem onClick={handleClose}>
+          <Link
+            to="https://docs.fuel.network"
+            target="_blank"
+            className="text-white"
+          >
+            Fuel Docs
+          </Link>
+        </MenuItem>
         {address && (
           <MenuItem onClick={handleClose}>
             <Link className="text-white" to="/faucet">

@@ -18,9 +18,11 @@ const contractId =
     : (process.env.NEXT_PUBLIC_TESTNET_CONTRACT_ID as string); // Testnet Contract ID
 
 export default function Home() {
-  const { wallet, walletBalance, refetchBalance } = useActiveWallet();
+  const { wallet, walletBalance, refetchBalance, isConnected } =
+    useActiveWallet();
   const [contract, setContract] = useState<TestContractAbi>();
   const [counter, setCounter] = useState<number>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   /**
    * useAsync is a wrapper around useEffect that allows us to run asynchronous code
@@ -37,6 +39,8 @@ export default function Home() {
 
   // eslint-disable-next-line consistent-return
   const onIncrementPressed = async () => {
+    if (!isConnected)
+      return toast.error("Please connect your wallet to increment the counter");
     if (!contract) {
       return toast.error("Contract not loaded");
     }
@@ -47,27 +51,37 @@ export default function Home() {
       );
     }
 
-    const { waitForResult } = await contract.functions
-      .increment_counter(bn(1))
-      .call();
+    try {
+      setIsLoading(true);
 
-    const { value, transactionId } = await waitForResult();
-    //show success toast with transaction link, with transaction link on blockchain explorer
-    toast(() => (
-      <span>
-        <CheckCircleIcon color="success" />
-        Transaction Success!{" "}
-        <a
-          target="_blank"
-          href={`https://app.fuel.network/tx/${transactionId}`}
-        >
-          <LaunchIcon />
-        </a>
-      </span>
-    ));
-    setCounter(value.toNumber());
+      const { waitForResult } = await contract.functions
+        .increment_counter(bn(1))
+        .call();
 
-    await refetchBalance?.();
+      const { value, transactionId } = await waitForResult();
+
+      toast(() => (
+        <span>
+          <CheckCircleIcon color="success" />
+          Counter Incremented! View it on the
+          <a
+            target="_blank"
+            className="pl-1 underline"
+            href={`https://app.fuel.network/tx/${transactionId}`}
+          >
+            block explorer
+          </a>
+        </span>
+      ));
+      setCounter(value.toNumber());
+
+      await refetchBalance?.();
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred while incrementing the counter.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -97,8 +111,17 @@ export default function Home() {
           {counter}
         </span>
 
-        <Button onClick={onIncrementPressed} className="mt-6">
-          Increment Counter
+        <Button
+          onClick={onIncrementPressed}
+          className={`mt-6 ${
+            isLoading
+              ? "bg-transparent border border-gray-400 pointer-events-none"
+              : !isConnected
+              ? "bg-gray-500"
+              : ""
+          }`}
+        >
+         {isLoading ? "Incrementing..." : "Increment Counter"}
         </Button>
       </>
 
@@ -108,13 +131,6 @@ export default function Home() {
 
       <Link to="/script" className="text-fuel-green hover:underline">
         Script Example
-      </Link>
-      <Link
-        to="https://docs.fuel.network"
-        target="_blank"
-        className="text-fuel-green hover:underline mt-8"
-      >
-        Fuel Docs
       </Link>
     </>
   );

@@ -56,9 +56,18 @@ export default function App() {
       <div className="flex flex-col bg-black text-white">
         <nav className="flex justify-between items-center p-4 bg-black text-white gap-6">
           {!isMobile && (
-            <Link className="text-fuel-green hover:underline" to="/">
-              Home
-            </Link>
+            <>
+              <Link className="text-fuel-green hover:underline" to="/">
+                Home
+              </Link>
+              <Link
+                to="https://docs.fuel.network"
+                target="_blank"
+                className="text-fuel-green hover:underline"
+              >
+                Fuel Docs
+              </Link>
+            </>
           )}
           {showAddNetworkButton && (
             <Button onClick={tryToAddNetwork} className="bg-red-500">

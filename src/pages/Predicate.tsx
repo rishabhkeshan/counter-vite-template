@@ -1,4 +1,3 @@
-
 import { Button } from "../components/Button";
 import { FuelLogo } from "../components/FuelLogo";
 import { Input } from "../components/Input";
@@ -15,13 +14,18 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 export default function PredicateExample() {
   let baseAssetId: string;
 
-  const { wallet, walletBalance, refetchBalance } = useActiveWallet();
+  const { wallet, walletBalance, refetchBalance, isConnected } =
+    useActiveWallet();
 
   const [predicate, setPredicate] = useState<Predicate<InputValue[]>>();
 
   const [predicateBalance, setPredicateBalance] = useState<BN>();
 
   const [pin, setPin] = useState<string>();
+
+    const [isLoadingTransfer, setIsLoadingTransfer] = useState<boolean>(false);
+
+    const [isLoadingUnlock, setIsLoadingUnlock] = useState<boolean>(false);
 
   useAsync(async () => {
     if (wallet) {
@@ -40,6 +44,10 @@ export default function PredicateExample() {
   };
 
   const transferFundsToPredicate = async (amount: BN) => {
+    if (!isConnected)
+      return toast.error(
+        "Please connect your wallet to transfer funds to Predicate"
+      );
     if (!predicate) {
       return toast.error("Predicate not loaded");
     }
@@ -52,36 +60,54 @@ export default function PredicateExample() {
         "Your wallet does not have enough funds. Please click the 'Faucet' button in the top right corner, or use the local faucet."
       );
     }
-    const tx = await wallet.transfer(predicate.address, amount, baseAssetId, {
-      gasLimit: 10_000,
-    });
-    console.log(tx);
-    await refreshBalances();
 
-    return toast(() => (
-      <span>
-        <CheckCircleIcon color="success" />
-        Funds transferred to predicate!
-        <a
-          target="_blank"
-          href={`https://app.fuel.network/tx/${tx?.id}`}
-        >
-          <LaunchIcon />
-        </a>
-      </span>
-    ));
+    try {
+      setIsLoadingTransfer(true);
+      const tx = await wallet.transfer(predicate.address, amount, baseAssetId, {
+        gasLimit: 10_000,
+      });
+      console.log(tx);
+      await refreshBalances();
+
+      return toast(() => (
+        <span>
+          <CheckCircleIcon color="success" />
+          Funds transferred to predicate! View it on the
+          <a
+            className="pl-1 underline"
+            target="_blank"
+            href={`https://app.fuel.network/tx/${tx?.id}`}
+          >
+            block explorer
+          </a>
+        </span>
+      ));
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred while transferring funds.");
+    } finally {
+      setIsLoadingTransfer(false);
+    }
   };
 
   const unlockPredicateAndTransferFundsBack = async (amount: BN) => {
     try {
+      if (!isConnected)
+        return toast.error(
+          "Please connect your wallet to transfer funds back from Predicate"
+        );
       if (!wallet) {
         return toast.error("Wallet not loaded");
       }
-    if (walletBalance?.eq(0)) {
-      return toast.error(
-        "Your wallet does not have enough funds. Please click the 'Faucet' button in the top right corner, or use the local faucet."
-      );
-    }
+      if (walletBalance?.eq(0)) {
+        return toast.error(
+          "Your wallet does not have enough funds. Please click the 'Faucet' button in the top right corner, or use the local faucet."
+        );
+      }
+      if (!predicateBalance || predicateBalance.lt(bn.parseUnits("0.09"))) {
+        return toast.error("Predicate balance is less than 0.09 ETH");
+      }
+      setIsLoadingUnlock(true);
       const reInitializePredicate = TestPredicateAbi__factory.createInstance(
         wallet.provider,
         [bn(pin)]
@@ -106,9 +132,13 @@ export default function PredicateExample() {
         toast(() => (
           <span>
             <CheckCircleIcon color="success" />
-            Funds transferred from predicate!
-            <a target="_blank" href={`https://app.fuel.network/tx/${tx?.id}`}>
-              <LaunchIcon />
+            Funds transferred from predicate! View it on the
+            <a
+              className="pl-1 underline"
+              target="_blank"
+              href={`https://app.fuel.network/tx/${tx?.id}`}
+            >
+              block explorer
             </a>
           </span>
         ));
@@ -120,8 +150,15 @@ export default function PredicateExample() {
       toast.error(
         "Failed to unlock predicate. You probably entered the wrong pin, or the predicate does not have enough balance. Try again."
       );
+    } finally {
+      setIsLoadingUnlock(false);
     }
   };
+
+  const isButtonDisabled =
+    !isConnected ||
+    !predicateBalance ||
+    predicateBalance.lt(bn.parseUnits("0.09"));
 
   return (
     <>
@@ -151,11 +188,20 @@ export default function PredicateExample() {
       </div>
 
       <Button
+        className={`${
+          isLoadingTransfer
+            ? "bg-transparent border border-gray-400 pointer-events-none"
+            : !isConnected
+            ? "bg-gray-500"
+            : ""
+        }`}
         onClick={async () =>
           await transferFundsToPredicate(bn.parseUnits("0.1"))
         }
       >
-        Transfer 0.1 ETH to Predicate
+        {isLoadingTransfer
+          ? "Transferring to Predicate..."
+          : "Transfer 0.1 ETH to Predicate"}
       </Button>
 
       <Input
@@ -166,12 +212,20 @@ export default function PredicateExample() {
       />
 
       <Button
-      className="w-11/12 sm:w-fit"
+        className={`w-11/12 sm:w-fit ${
+          isLoadingUnlock
+            ? "bg-transparent border border-gray-400 pointer-events-none"
+            : isButtonDisabled
+            ? "bg-gray-500"
+            : ""
+        }`}
         onClick={async () =>
           await unlockPredicateAndTransferFundsBack(bn.parseUnits("0.09"))
         }
       >
-        Unlock Predicate and Transfer 0.09 ETH back to Wallet
+        {isLoadingTransfer
+          ? "Unlocking Predicate and Transferring to Wallet..."
+          : "Unlock Predicate and Transfer 0.09 ETH back to Wallet"}
       </Button>
 
       <span className="mt-4 w-[360px] text-center text-gray-400">
@@ -187,10 +241,6 @@ export default function PredicateExample() {
         className="text-fuel-green hover:underline"
       >
         Learn more about Predicates
-      </Link>
-
-      <Link to="/" className="text-fuel-green hover:underline mt-8">
-        Back to Home
       </Link>
     </>
   );

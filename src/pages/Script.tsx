@@ -13,12 +13,14 @@ import toast from "react-hot-toast";
 import useAsync from "react-use/lib/useAsync";
 import LaunchIcon from "@mui/icons-material/Launch";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+
 export default function ScriptExample() {
-  const { wallet, walletBalance } = useActiveWallet();
+  const { wallet, walletBalance, isConnected } = useActiveWallet();
 
   const [script, setScript] = useState<Script<[input: BigNumberish], BN>>();
   const [input, setInput] = useState<string>();
   const [result, setResult] = useState<string>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useAsync(async () => {
     if (wallet) {
@@ -29,14 +31,19 @@ export default function ScriptExample() {
 
   const runScript = async () => {
     try {
+      if (!isConnected)
+        return toast.error("Please connect your wallet to run the script");
       if (!script) {
         return toast.error("Script not loaded");
       }
-    if (walletBalance?.eq(0)) {
-      return toast.error(
-        "Your wallet does not have enough funds. Please click the 'Faucet' button in the top right corner, or use the local faucet."
-      );
-    }
+      if (walletBalance?.eq(0)) {
+        return toast.error(
+          "Your wallet does not have enough funds. Please click the 'Faucet' button in the top right corner, or use the local faucet."
+        );
+      }
+
+      setIsLoading(true);
+
       const { waitForResult } = await script.functions.main(bn(input)).call();
       const { value, transactionId } = await waitForResult();
 
@@ -44,18 +51,21 @@ export default function ScriptExample() {
       toast(() => (
         <span>
           <CheckCircleIcon color="success" />
-          Transaction Success!{" "}
+          Transaction Success! View it on the
           <a
+            className="pl-1 underline"
             target="_blank"
             href={`https://app.fuel.network/tx/${transactionId}`}
           >
-            <LaunchIcon />
+            block explorer
           </a>
         </span>
       ));
     } catch (error) {
       console.error(error);
       toast.error("Error running script.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -74,7 +84,18 @@ export default function ScriptExample() {
         type="number"
       />
 
-      <Button onClick={runScript}>Run Script</Button>
+      <Button
+        className={`${
+          isLoading
+            ? "bg-transparent border border-gray-400 pointer-events-none"
+            : !isConnected
+            ? "bg-gray-500"
+            : ""
+        }`}
+        onClick={runScript}
+      >
+        {isLoading ? "Running..." : "Run Script"}
+      </Button>
 
       {result && (
         <div className="flex gap-4 align-baseline">

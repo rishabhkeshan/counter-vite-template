@@ -3,19 +3,22 @@ import { Input } from "../components/Input";
 import { useActiveWallet } from "../hooks/useActiveWallet";
 import { useFaucet } from "../hooks/useFaucet";
 import { bn } from "fuels";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { CURRENT_ENVIRONMENT, TESTNET_FAUCET_LINK } from "../lib";
 import LaunchIcon from "@mui/icons-material/Launch";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { useNavigate } from "react-router-dom";
 const isLocal = CURRENT_ENVIRONMENT === "local";
 
 export default function Faucet() {
   const { faucetWallet } = useFaucet();
-  const { wallet, refetchBalance } = useActiveWallet();
+  const { wallet, refetchBalance, walletBalance } = useActiveWallet();
+  const navigate = useNavigate();
 
   const [receiverAddress, setReceiverAddress] = useState<string>("");
   const [amountToSend, setAmountToSend] = useState<string>("5");
+  const previousBalanceRef = useRef(walletBalance);
 
   useEffect(() => {
     if (wallet) {
@@ -28,7 +31,17 @@ export default function Faucet() {
     }, 500);
     return () => clearInterval(interval);
   }, []);
-
+  useEffect(() => {
+    if (
+      previousBalanceRef.current &&
+      walletBalance &&
+      walletBalance.gt(previousBalanceRef.current)
+    ) {
+      toast.success("Funds received! Navigating back to home page.");
+      navigate("/");
+    }
+    previousBalanceRef.current = walletBalance;
+  }, [walletBalance, navigate]);
   const sendFunds = async () => {
     if (!faucetWallet) {
       return toast.error("Faucet wallet not found.");
@@ -48,15 +61,6 @@ export default function Faucet() {
         bn.parseUnits(amountToSend.toString())
       );
       const { id } = await tx.waitForResult();
-      toast(() => (
-        <span>
-          <CheckCircleIcon color="success" />
-          Transaction Success!{" "}
-          <a target="_blank" href={`https://app.fuel.network/tx/${id}`}>
-            <LaunchIcon />
-          </a>
-        </span>
-      ));
       await refetchBalance?.();
     } catch (error) {
       toast.error("Transaction failed");
